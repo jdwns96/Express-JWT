@@ -43,14 +43,25 @@ app.use(morgan("dev"));
 // app.use(routes);
 
 app.get("/", (req, res) => {
-  res.status(200).json({
-    massage: "OK",
-  });
-  // res.sendFile("./public/index.html");
+  res.sendFile("./public/index.html");
+  // res.status(200).json({
+  //   massage: "OK",
+  // });
 });
 
 app.post("/login", async (req, res) => {
   const { user_id, password } = req.body;
+
+  const value = userTable.find(
+    (elem, index) => elem.user_id === user_id && elem.password === password
+  );
+  if (value) {
+    return res.status(403).json({
+      massage: "NO",
+    });
+  }
+  return;
+  // DB
 });
 
 // run
