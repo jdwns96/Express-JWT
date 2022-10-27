@@ -9,11 +9,22 @@
   </head>
   <body>
     <div class="form">
-      <input type="text" name="" id="" class="form__id" />
-      <input type="text" name="" id="" class="form__password" />
+      <input type="text" name="" id="" class="form__id" placeholder="user id" />
+      <input
+        type="text"
+        name=""
+        id=""
+        class="form__password"
+        placeholder="password"
+      />
       <button class="form__submit-btn">로그인</button>
     </div>
-    <div class="main"></div>
+    <div class="main" style="display: none">
+      <div></div>
+      <div>
+        <button class="main__API-btn">Give ME DATA !</button>
+      </div>
+    </div>
     <script>
       const User = {
         id: null,
@@ -28,6 +39,7 @@
       const $formSubmitBtn = document.querySelector(".form__submit-btn");
 
       const $main = document.querySelector(".main");
+      const $mainApiBtn = document.querySelector(".main__API-btn");
     </script>
     <script>
       // axios middleware
@@ -65,14 +77,20 @@
       );
     </script>
     <script>
+      function setAuth(data) {
+        console.log("setAuth");
+        User.accessToken = data.token.accessToken; // accessToken
+        client.defaults.headers.authorization = `${data.token.accessToken}`;
+        localStorage.setItem("refresh", data.token.refreshToken);
+      }
+
       function loginRender(data) {
         User.id = data.user.user_id;
         User.user_id = data.user.user_id;
         User.name = data.user.name;
-        User.accessToken = data.token.accessToken; // accessToken
 
         $form.style.display = "none";
-
+        $main.style.display = "block";
         const textHtml = `
             <div>
               <p>id : ${User.id}  </p>
@@ -84,8 +102,25 @@
       }
     </script>
     <script>
-      document.addEventListener("load", (e) => {
+      window.addEventListener("load", async (e) => {
         console.log("initialization");
+        const refreshToken = localStorage.getItem("refresh");
+
+        if (!refreshToken) return null;
+
+        try {
+          const response = await client.get("/login-check", {
+            headers: {
+              refresh: refreshToken,
+            },
+          });
+          console.log(response);
+          const { data } = response;
+          loginRender(data);
+          setAuth(data);
+        } catch (e) {
+          console.log(e);
+        }
       });
     </script>
     <script>
@@ -101,6 +136,12 @@
           console.log(response);
           const { data } = response;
           loginRender(data);
+          setAuth(data);
+        } catch (e) {}
+      });
+
+      $mainApiBtn.addEventListener("click", async (e) => {
+        try {
         } catch (e) {}
       });
     </script>

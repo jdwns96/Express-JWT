@@ -28,6 +28,10 @@ router.post("/login", async (req, res) => {
   const accessToken = accessSign(value);
   const refreshToken = refreshSign();
 
+  // DB user table 에 값 추가
+  const userIndex = userTable.findIndex((v, _) => v.id === value.id);
+  userTable[userIndex].refresh_token = refreshToken;
+
   return res.status(200).json({
     token: {
       accessToken: `bearer ${accessToken}`,
@@ -46,6 +50,7 @@ router.get("/login-check", (req, res) => {
   // refresh 토큰을 활용해서 access token 재발급을 허용할지 말지 선택한다.
   // 로그인 상태 검증 & 새로고침
   const { refresh } = req.headers;
+  console.log(refresh);
 
   // if there is no refresh value in req.headers
   if (!refresh) {
@@ -57,6 +62,7 @@ router.get("/login-check", (req, res) => {
   const result = refreshVerify(refresh);
 
   if (result._status === 0) {
+    console.log("_status", 0);
     const exUser = userTable.find((v, i) => v.refresh_token === refresh);
     // if there is no refresh_token in db, get logout
     if (!exUser) {
