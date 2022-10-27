@@ -15,20 +15,94 @@
     </div>
     <div class="main"></div>
     <script>
-      // axios middleware
-    </script>
-    <script>
-      const user = {
+      const User = {
         id: null,
         user_id: null,
         name: null,
+        accessToken: null,
       };
 
+      const $form = document.querySelector(".form");
       const $formId = document.querySelector(".form__id");
       const $formPassword = document.querySelector(".form__password");
       const $formSubmitBtn = document.querySelector(".form__submit-btn");
 
-      $formSubmitBtn.addEventListener("click", async (e) => {});
+      const $main = document.querySelector(".main");
+    </script>
+    <script>
+      // axios middleware
+      const client = axios.create({
+        baseURL: "http://localhost:8888",
+      });
+      client.interceptors.request.use(
+        function (config) {
+          return config;
+        },
+        function (error) {
+          // 요청 에러 직전 호출됩니다.
+          return Promise.reject(error);
+        }
+      );
+
+      client.interceptors.response.use(
+        function (response) {
+          /*
+      http status가 200인 경우
+      응답 성공 직전 호출됩니다. 
+      .then() 으로 이어집니다.
+  */
+          return response;
+        },
+
+        function (error) {
+          /*
+      http status가 200이 아닌 경우
+      응답 에러 직전 호출됩니다.
+      .catch() 으로 이어집니다.    
+  */
+          return Promise.reject(error);
+        }
+      );
+    </script>
+    <script>
+      function loginRender(data) {
+        User.id = data.user.user_id;
+        User.user_id = data.user.user_id;
+        User.name = data.user.name;
+        User.accessToken = data.token.accessToken; // accessToken
+
+        $form.style.display = "none";
+
+        const textHtml = `
+            <div>
+              <p>id : ${User.id}  </p>
+              <p>user_id : ${User.user_id}  </p>
+              <p>name : ${User.name}  </p>
+            </div>
+          `;
+        $main.innerHTML = textHtml;
+      }
+    </script>
+    <script>
+      document.addEventListener("load", (e) => {
+        console.log("initialization");
+      });
+    </script>
+    <script>
+      $formSubmitBtn.addEventListener("click", async (e) => {
+        const user_id = $formId.value;
+        const password = $formPassword.value;
+
+        try {
+          const response = await client.post("/login", {
+            user_id,
+            password,
+          });
+          console.log(response);
+          const { data } = response;
+          loginRender(data);
+        } catch (e) {}
+      });
     </script>
   </body>
 </html>
