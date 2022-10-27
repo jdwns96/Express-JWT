@@ -10,22 +10,7 @@ const path = require("path"); // 경로 설정
 // const routes = require("./routes");
 
 // DB
-const userTable = [
-  {
-    id: "1",
-    user_id: "foo",
-    password: "123",
-    name: "foo",
-    refresh_token: null,
-  },
-  {
-    id: "2",
-    user_id: "boo",
-    password: "123",
-    name: "boo",
-    refresh_token: null,
-  },
-];
+const userTable = require("./db/user");
 
 // express instance
 const app = express();
