@@ -1,12 +1,19 @@
 const jwt = require("jsonwebtoken");
 
+const JWT_SECRET = "JWT";
+
 /**
  * @token
  * user_id
  * name
  */
 
-const JWT_SECRET = "JWT";
+/**
+ * @verify
+ * 검증 성공 - 0 - 로그인 상태
+ * 검증 실패 - 1 - (기간 만료)로그인 상태 하지만 시간이 지나서 재발급이 필요함
+ * 검증 실패 - 2 - (유효하지 않음)잘못된 토큰이거나 로그인 상태가 아님
+ */
 
 const jwtUtil = {
   // access token Issuance
@@ -30,16 +37,14 @@ const jwtUtil = {
       // 분기 걸어줘야함
       // success
       return {
-        _isVerified: true,
-        _status: "",
+        _status: 0,
         user_id: decoded.user_id,
         name: decoded.name,
       };
     } catch (error) {
       console.log(error);
       return {
-        _isVerified: false,
-        _status: "",
+        _status: 1,
         message: error.message,
       };
     }
@@ -62,18 +67,16 @@ const jwtUtil = {
       // 분기 걸어줘야함
       // 만료 시
       return {
-        _isVerified: true,
-        _status: "",
+        _status: 0,
       };
     } catch (error) {
       console.log(error);
       return {
-        _isVerified: false,
-        _status: "",
+        _status: 1,
         message: error.message,
       };
     }
   },
 };
 
-module.exports = jwt;
+module.exports = jwtUtil;
