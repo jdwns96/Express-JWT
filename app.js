@@ -8,6 +8,7 @@ const { WebSocket, WebSocketServer } = require("ws");
 const path = require("path"); // 경로 설정
 // create module
 // const routes = require("./routes");
+const routes = require("./routes");
 
 // DB
 const userTable = require("./db/user");
@@ -34,21 +35,8 @@ app.get("/", (req, res) => {
   // });
 });
 
-app.post("/login", async (req, res) => {
-  const { user_id, password } = req.body;
-
-  const value = userTable.find(
-    (elem, index) => elem.user_id === user_id && elem.password === password
-  );
-  if (value) {
-    return res.status(403).json({
-      massage: "NO",
-    });
-  }
-  return;
-  // DB
-});
-
+// routes
+app.use(routes);
 // run
 app.listen(app.get("port"), () => {
   console.log(app.get("port"), " : server listening !");

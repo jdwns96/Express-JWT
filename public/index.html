@@ -5,14 +5,30 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   </head>
   <body>
-    <div class="login">
-      <input type="text" name="" id="" />
-      <input type="text" name="" id="" />
-      <button>로그인</button>
+    <div class="form">
+      <input type="text" name="" id="" class="form__id" />
+      <input type="text" name="" id="" class="form__password" />
+      <button class="form__submit-btn">로그인</button>
     </div>
     <div class="main"></div>
-    <script></script>
+    <script>
+      // axios middleware
+    </script>
+    <script>
+      const user = {
+        id: null,
+        user_id: null,
+        name: null,
+      };
+
+      const $formId = document.querySelector(".form__id");
+      const $formPassword = document.querySelector(".form__password");
+      const $formSubmitBtn = document.querySelector(".form__submit-btn");
+
+      $formSubmitBtn.addEventListener("click", async (e) => {});
+    </script>
   </body>
 </html>

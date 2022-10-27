@@ -41,11 +41,11 @@ const jwtUtil = {
         user_id: decoded.user_id,
         name: decoded.name,
       };
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
       return {
         _status: 1,
-        message: error.message,
+        message: e.message,
       };
     }
   },
@@ -69,11 +69,11 @@ const jwtUtil = {
       return {
         _status: 0,
       };
-    } catch (error) {
-      console.log(error);
+    } catch (e) {
+      console.log(e);
       return {
         _status: 1,
-        message: error.message,
+        message: e.message,
       };
     }
   },
