@@ -55,7 +55,7 @@ router.get("/login-check", (req, res) => {
   // if there is no refresh value in req.headers
   if (!refresh) {
     return res.status(403).json({
-      message: "access denied",
+      message: "access denied (login-check)",
     });
   }
   // check refresh-token

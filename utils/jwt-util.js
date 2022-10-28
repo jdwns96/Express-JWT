@@ -2,18 +2,9 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = "JWT";
 
-/**
- * @token
- * user_id
- * name
- */
-
-/**
- * @verify
- * 검증 성공 - 0 - 로그인 상태
- * 검증 실패 - 1 - (기간 만료)로그인 상태 하지만 시간이 지나서 재발급이 필요함
- * 검증 실패 - 2 - (유효하지 않음)잘못된 토큰이거나 로그인 상태가 아님
- */
+const TOKEN_VERIFY = 0; // 로그인 상태
+const TOKEN_EXPIRED = 1; // (기간 만료)로그인 상태 하지만 시간이 지나서 재발급이 필요함
+const TOKEN_INVALID = 2; // (유효하지 않음)잘못된 토큰이거나 로그인 상태가 아님
 
 const jwtUtil = {
   // access token Issuance
@@ -25,7 +16,7 @@ const jwtUtil = {
 
     const accessToken = jwt.sign(payload, JWT_SECRET, {
       algorithm: "HS256",
-      expiresIn: "10s", // 10초
+      expiresIn: "2s", // 30초
     });
     return accessToken;
   },
@@ -37,15 +28,27 @@ const jwtUtil = {
       // 분기 걸어줘야함
       // success
       return {
-        _status: 0,
+        _status: TOKEN_VERIFY,
         user_id: decoded.user_id,
         name: decoded.name,
       };
     } catch (e) {
-      console.log(e);
+      const { message } = e;
+      if (message === "jwt expired") {
+        return {
+          _status: TOKEN_EXPIRED,
+          message: "jwt expired",
+        };
+      }
+      if (message === "invalid token") {
+        return {
+          _status: TOKEN_INVALID,
+          message: "invalid token",
+        };
+      }
       return {
-        _status: 1,
-        message: e.message,
+        _status: TOKEN_INVALID,
+        message: "invalid token",
       };
     }
   },
@@ -64,16 +67,26 @@ const jwtUtil = {
     let decoded = null;
     try {
       decoded = jwt.verify(token, JWT_SECRET);
-      // 분기 걸어줘야함
-      // 만료 시
       return {
-        _status: 0,
+        _status: TOKEN_VERIFY,
       };
     } catch (e) {
-      console.log(e);
+      const { message } = e;
+      if (message === "jwt expired") {
+        return {
+          _status: TOKEN_EXPIRED,
+          message: "jwt expired",
+        };
+      }
+      if (message === "invalid token") {
+        return {
+          _status: TOKEN_INVALID,
+          message: "invalid token",
+        };
+      }
       return {
-        _status: 1,
-        message: e.message,
+        _status: TOKEN_INVALID,
+        message: "invalid token",
       };
     }
   },

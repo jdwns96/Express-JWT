@@ -5,7 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> -->
+    <script src="js/axios.js"></script>
   </head>
   <body>
     <div class="form">
@@ -20,7 +21,7 @@
       <button class="form__submit-btn">로그인</button>
     </div>
     <div class="main" style="display: none">
-      <div></div>
+      <div class="main__info"></div>
       <div>
         <button class="main__API-btn">Give ME DATA !</button>
       </div>
@@ -39,6 +40,7 @@
       const $formSubmitBtn = document.querySelector(".form__submit-btn");
 
       const $main = document.querySelector(".main");
+      const $mainInfo = document.querySelector(".main__info");
       const $mainApiBtn = document.querySelector(".main__API-btn");
     </script>
     <script>
@@ -57,21 +59,37 @@
       );
 
       client.interceptors.response.use(
+        // success
         function (response) {
-          /*
-      http status가 200인 경우
-      응답 성공 직전 호출됩니다. 
-      .then() 으로 이어집니다.
-  */
           return response;
         },
-
-        function (error) {
-          /*
-      http status가 200이 아닌 경우
-      응답 에러 직전 호출됩니다.
-      .catch() 으로 이어집니다.    
-  */
+        // failure
+        async function (error) {
+          console.log(error, "1 axios handler");
+          const {
+            config,
+            response: { status },
+          } = error;
+          if (status === 419) {
+            console.log("2 access token expired");
+            const originalRequest = config;
+            const refreshToken = localStorage.getItem("refresh");
+            if (!refreshToken) {
+              console.log("2-1 refresh 토큰이 없다 - 완전 로그아웃 상태");
+              return Promise.reject(error);
+            }
+            const response = await client.get("/login-check", {
+              headers: {
+                refresh: refreshToken,
+              },
+            });
+            console.log("3-1 토큰 재확인 요청");
+            const { data } = response;
+            setAuth(data);
+            originalRequest.headers.authorization = data.token.accessToken;
+            console.log(originalRequest);
+            return client(originalRequest);
+          }
           return Promise.reject(error);
         }
       );
@@ -91,6 +109,7 @@
 
         $form.style.display = "none";
         $main.style.display = "block";
+        $main.display = "block";
         const textHtml = `
             <div>
               <p>id : ${User.id}  </p>
@@ -98,7 +117,7 @@
               <p>name : ${User.name}  </p>
             </div>
           `;
-        $main.innerHTML = textHtml;
+        $mainInfo.innerHTML = textHtml;
       }
     </script>
     <script>
@@ -120,6 +139,7 @@
           setAuth(data);
         } catch (e) {
           console.log(e);
+          console.log(e.response.status);
         }
       });
     </script>
@@ -142,7 +162,11 @@
 
       $mainApiBtn.addEventListener("click", async (e) => {
         try {
-        } catch (e) {}
+          const response = await client.get("/test");
+          console.log("실행 함수", response);
+        } catch (e) {
+          console.log("에러 발생 타임아웃");
+        }
       });
     </script>
   </body>
