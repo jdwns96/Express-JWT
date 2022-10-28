@@ -16,7 +16,7 @@ const jwtUtil = {
 
     const accessToken = jwt.sign(payload, JWT_SECRET, {
       algorithm: "HS256",
-      expiresIn: "2s", // 30초
+      expiresIn: "3s", // 30초
     });
     return accessToken;
   },
@@ -58,7 +58,7 @@ const jwtUtil = {
     const payload = {};
     const refreshToken = jwt.sign(payload, JWT_SECRET, {
       algorithm: "HS256",
-      expiresIn: "14d", // 14일
+      expiresIn: "10s", // 14일 "14d"
     });
     return refreshToken;
   },
@@ -73,20 +73,23 @@ const jwtUtil = {
     } catch (e) {
       const { message } = e;
       if (message === "jwt expired") {
+        console.log("( refresh ) jwt expired");
         return {
           _status: TOKEN_EXPIRED,
-          message: "jwt expired",
+          message: "( refresh ) jwt expired",
         };
       }
       if (message === "invalid token") {
+        console.log("( refresh ) invalid token");
         return {
           _status: TOKEN_INVALID,
-          message: "invalid token",
+          message: "( refresh ) invalid token",
         };
       }
+      console.log("( refresh ) invalid token");
       return {
         _status: TOKEN_INVALID,
-        message: "invalid token",
+        message: "( refresh ) invalid token",
       };
     }
   },

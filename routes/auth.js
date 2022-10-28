@@ -12,6 +12,10 @@ const userTable = require("../db/user");
 
 const router = express.Router();
 
+const TOKEN_VERIFY = 0; // 로그인 상태
+const TOKEN_EXPIRED = 1; // (기간 만료)로그인 상태 하지만 시간이 지나서 재발급이 필요함
+const TOKEN_INVALID = 2; // (유효하지 않음)잘못된 토큰이거나 로그인 상태가 아님
+
 // @ 로그인, 엑세스 토큰, 리프레시 토큰 발급 후 전달
 router.post("/login", async (req, res) => {
   const { user_id, password } = req.body;
@@ -61,13 +65,13 @@ router.get("/login-check", (req, res) => {
   // check refresh-token
   const result = refreshVerify(refresh);
 
-  if (result._status === 0) {
-    console.log("_status", 0);
+  if (result._status === TOKEN_VERIFY) {
+    console.log("_status", TOKEN_VERIFY);
     const exUser = userTable.find((v, i) => v.refresh_token === refresh);
     // if there is no refresh_token in db, get logout
     if (!exUser) {
       return res.status(403).json({
-        message: "access denied",
+        message: "access denied ()",
       });
     }
 
@@ -87,16 +91,20 @@ router.get("/login-check", (req, res) => {
   }
 
   // 실패, 기간 만료!! , 리프레시 재발급 혹은 로그아웃
-  if (result._status === 1) {
+  if (result._status === TOKEN_EXPIRED) {
     const exUser = userTable.find((v, i) => v.refresh_token === refresh);
     if (!exUser) {
       return res.status(403).json({
-        message: "access denied",
+        message: "access denied (DB)",
       });
     }
 
     const accessToken = accessSign(exUser);
     const refreshToken = refreshSign();
+
+    //DB
+    const userIndex = userTable.findIndex((v, _) => v.id === exUser.id);
+    userTable[userIndex].refresh_token = refreshToken;
 
     return res.status(200).json({
       token: {
@@ -111,14 +119,14 @@ router.get("/login-check", (req, res) => {
     });
   }
   // 실패, 유효하지 않음, 로그아웃
-  if (result._status === 2) {
+  if (result._status === TOKEN_INVALID) {
     return res.status(403).json({
-      message: "access denied",
+      message: "access denied (TOKEN 이 유효하지 않음)",
     });
   }
 
   return res.status(403).json({
-    message: "access denied",
+    message: "access denied (Default)",
   });
 });
 

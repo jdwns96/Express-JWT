@@ -164,9 +164,8 @@
         try {
           const response = await client.get("/test");
           console.log("실행 함수", response);
-        } catch (e) {
-          console.log("에러 발생 타임아웃");
-        }
+          $mainInfo.innerHTML += `<div>${response.data.message}</div>`;
+        } catch (e) {}
       });
     </script>
   </body>
